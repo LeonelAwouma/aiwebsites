@@ -11,9 +11,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "./ui/skeleton";
 
 export function ThemeToggle() {
   const { setTheme } = useTheme();
+  const [hasMounted, setHasMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted) {
+    return <Skeleton className="h-8 w-8 rounded-md" />;
+  }
 
   return (
     <DropdownMenu>
