@@ -22,4 +22,5 @@ export type DatabaseConnection = {
   port: number;
   user: string;
   dbname: string;
+  password?: string;
 };
