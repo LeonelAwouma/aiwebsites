@@ -14,19 +14,19 @@ type Conversation = {
 
 export function ConversationHistory() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
-    // Set conversations on the client after mount to ensure `new Date()` is consistent
     setConversations([
       { id: 1, date: new Date(), active: true },
       { id: 2, date: new Date(Date.now() - 1 * 60 * 1000) },
       { id: 3, date: new Date(Date.now() - 40 * 60 * 1000) },
       { id: 4, date: new Date(Date.now() - 24 * 60 * 60 * 1000) },
     ]);
+    setHasMounted(true);
   }, []);
 
-  // Render placeholders on the server and during initial client render
-  if (conversations.length === 0) {
+  if (!hasMounted) {
     return (
       <div className="flex flex-col gap-1 p-2">
         {[...Array(4)].map((_, index) => (
