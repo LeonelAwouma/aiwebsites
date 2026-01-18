@@ -1,71 +1,59 @@
 "use client";
 
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { formatDistanceToNow } from "date-fns";
-import { fr } from "date-fns/locale";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Conversation = {
-  id: number;
+  id: string;
+  title: string;
   date: Date;
-  active?: boolean;
 };
+
+const initialConversations: Conversation[] = [
+    { id: '1', title: 'Comparaison des FAI', date: new Date() },
+    { id: '2', title: 'Détails de connexion BD', date: new Date(Date.now() - 2 * 60 * 60 * 1000) },
+    { id: '3', title: 'Génération de snippet de code', date: new Date(Date.now() - 5 * 60 * 60 * 1000) },
+    { id: '4', title: 'Résumé du site ADAC.cm', date: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+];
+
 
 export function ConversationHistory() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeId, setActiveId] = useState('1');
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
-    // This runs only on the client, after the component has mounted.
-    setConversations([
-      { id: 1, date: new Date(), active: true },
-      { id: 2, date: new Date(Date.now() - 1 * 60 * 1000) },
-      { id: 3, date: new Date(Date.now() - 40 * 60 * 1000) },
-      { id: 4, date: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-    ]);
     setHasMounted(true);
-  }, []); // Empty dependency array ensures this runs only once.
+    setConversations(initialConversations);
+  }, []);
 
-  // On the server, and on the client before `useEffect` runs, this will be rendered.
-  // This placeholder is structurally identical to the final output.
   if (!hasMounted) {
     return (
-      <div className="flex flex-col gap-1 p-2">
-        {[...Array(4)].map((_, index) => (
-          <Button
-            key={index}
-            variant={index === 0 ? "secondary" : "ghost"}
-            className="w-full justify-start h-auto py-2 px-3"
-            disabled
-          >
-            <MessageSquare className="mr-3 h-4 w-4" />
-            <div className="flex flex-col items-start">
-              <span className="font-medium text-sm">Nouvelle conversation</span>
-              <span className="text-xs text-muted-foreground">...</span>
-            </div>
-          </Button>
+      <div className="p-2 space-y-1">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="flex items-center gap-2.5 rounded-md p-2.5">
+             <MessageSquare className="h-4 w-4 text-muted-foreground" />
+             <Skeleton className="h-4 w-full" />
+          </div>
         ))}
       </div>
     );
   }
 
-  // This is rendered only on the client, after hydration is complete.
   return (
     <div className="flex flex-col gap-1 p-2">
       {conversations.map((convo) => (
         <Button
           key={convo.id}
-          variant={convo.active ? "secondary" : "ghost"}
-          className="w-full justify-start h-auto py-2 px-3"
+          variant={activeId === convo.id ? "secondary" : "ghost"}
+          className="w-full justify-start h-10 px-2.5 group"
+          onClick={() => setActiveId(convo.id)}
         >
-          <MessageSquare className="mr-3 h-4 w-4" />
-          <div className="flex flex-col items-start">
-            <span className="font-medium text-sm">Nouvelle conversation</span>
-            <span className="text-xs text-muted-foreground">
-              {`il y a ${formatDistanceToNow(convo.date, { locale: fr })}`}
-            </span>
-          </div>
+          <MessageSquare className="mr-2.5 h-4 w-4 flex-shrink-0" />
+          <span className="truncate flex-1 text-left">{convo.title}</span>
+           <MoreHorizontal className="h-4 w-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
         </Button>
       ))}
     </div>

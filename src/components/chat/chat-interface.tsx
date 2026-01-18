@@ -4,9 +4,9 @@ import { useState, useRef, useEffect, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { SendHorizontal } from "lucide-react";
+import { SendHorizontal, LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -20,7 +20,9 @@ import { getAiResponse } from "@/lib/actions";
 import { EmptyState } from "./empty-state";
 import { ChatMessageBubble } from "./chat-message";
 import { MessageLoader } from "./message-loader";
-import { AiIcon } from "../icons/ai-icon";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Brand } from "../brand";
+
 
 const formSchema = z.object({
   message: z.string().min(1, "Message cannot be empty."),
@@ -34,11 +36,23 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isPending, startTransition] = useTransition();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { message: "" },
   });
+  
+  const { watch } = form;
+  const messageValue = watch("message");
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [messageValue]);
+
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -83,16 +97,19 @@ export function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full bg-background">
-      <header className="flex items-center gap-3 p-4 border-b">
-        <AiIcon variant="subtle" className="h-8 w-8 text-sm" />
-        <h2 className="font-semibold text-lg">New Conversation</h2>
+      <header className="flex items-center gap-4 p-4 border-b">
+        <SidebarTrigger className="md:hidden" />
+        <div className="md:hidden">
+            <Brand />
+        </div>
+        <h2 className="font-semibold text-lg hidden md:block">Nouvelle conversation</h2>
       </header>
-      <div ref={scrollAreaRef} className="flex-1 overflow-y-auto p-4 md:p-6">
-        <div className="max-w-4xl mx-auto">
+      <div ref={scrollAreaRef} className="flex-1 overflow-y-auto">
+        <div className="max-w-4xl mx-auto px-4 md:px-6 py-6 md:py-10">
           {messages.length === 0 ? (
             <EmptyState onExampleClick={(q) => form.setValue("message", q)} />
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {messages.map((msg) => (
                 <ChatMessageBubble key={msg.id} {...msg} />
               ))}
@@ -102,26 +119,30 @@ export function ChatInterface() {
         </div>
       </div>
 
-      <div className="p-4 md:p-6 bg-background border-t">
+      <div className="p-4 md:p-6 bg-background/95 backdrop-blur-sm border-t">
         <div className="max-w-4xl mx-auto">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="relative">
-              <FormField
+               <FormField
                 control={form.control}
                 name="message"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input
+                      <Textarea
+                        {...field}
+                        ref={textareaRef}
+                        rows={1}
                         placeholder="Posez votre question..."
-                        className="pr-14 h-12"
+                        className="pr-16 py-3 min-h-[52px] max-h-48 resize-none"
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
-                            form.handleSubmit(onSubmit)();
+                            if (field.value.trim()) {
+                                form.handleSubmit(onSubmit)();
+                            }
                           }
                         }}
-                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -132,19 +153,15 @@ export function ChatInterface() {
                 <Button
                   type="submit"
                   size="icon"
-                  disabled={isPending}
+                  disabled={isPending || !messageValue?.trim()}
                   className="rounded-full h-9 w-9"
                 >
-                  <SendHorizontal className="h-5 w-5" />
-                  <span className="sr-only">Send</span>
+                  {isPending ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <SendHorizontal className="h-5 w-5" />}
+                  <span className="sr-only">Envoyer</span>
                 </Button>
               </div>
             </form>
           </Form>
-          <p className="text-xs text-center text-muted-foreground mt-3">
-            Appuyez sur Entrée pour envoyer, Shift+Entrée pour une nouvelle
-            ligne
-          </p>
         </div>
       </div>
     </div>

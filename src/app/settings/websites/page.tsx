@@ -26,9 +26,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Globe } from "lucide-react";
 import { initialWebsiteSources } from "@/lib/data";
 import type { WebsiteSource } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 function WebsiteSourceCard({
   source,
@@ -37,24 +38,17 @@ function WebsiteSourceCard({
   source: WebsiteSource;
   onToggle: (id: string, isActive: boolean) => void;
 }) {
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
-  };
 
   return (
-    <Card>
+    <Card className="transition-all hover:shadow-lg hover:-translate-y-1">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary font-bold text-primary">
-              {getInitials(source.name)}
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
+               <Globe className="h-6 w-6 text-muted-foreground" />
             </div>
             <div>
-              <CardTitle className="text-base font-medium">
+              <CardTitle className="text-base font-semibold">
                 {source.name}
               </CardTitle>
               <CardDescription>{source.url}</CardDescription>
@@ -62,28 +56,31 @@ function WebsiteSourceCard({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Edit</DropdownMenuItem>
-              <DropdownMenuItem>Refresh</DropdownMenuItem>
+              <DropdownMenuItem>Modifier</DropdownMenuItem>
+              <DropdownMenuItem>Rafraîchir</DropdownMenuItem>
               <DropdownMenuItem className="text-destructive">
-                Delete
+                Supprimer
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </CardHeader>
-      <CardFooter className="flex justify-between items-center">
-        <span
-          className={`text-sm font-medium ${
-            source.isActive ? "text-primary" : "text-muted-foreground"
-          }`}
-        >
-          {source.isActive ? "Active" : "Inactive"}
-        </span>
+      <CardFooter className="flex justify-between items-center bg-secondary/50 px-6 py-3 rounded-b-lg">
+        <div className="flex items-center gap-2">
+            <div className={cn("h-2 w-2 rounded-full", source.isActive ? "bg-green-500" : "bg-muted-foreground")} />
+            <span
+            className={`text-sm font-medium ${
+                source.isActive ? "text-foreground" : "text-muted-foreground"
+            }`}
+            >
+            {source.isActive ? "Actif" : "Inactif"}
+            </span>
+        </div>
         <Switch
           checked={source.isActive}
           onCheckedChange={(checked) => onToggle(source.id, checked)}
@@ -107,10 +104,13 @@ export default function WebsitesPage() {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Website Sources</h2>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+            <h2 className="text-2xl font-headline font-semibold">Sources de sites web</h2>
+            <p className="text-muted-foreground mt-1">Gérez les sites web utilisés pour alimenter l'IA.</p>
+        </div>
         <Button onClick={() => setIsDialogOpen(true)}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add Website
+          <PlusCircle className="mr-2 h-4 w-4" /> Ajouter un site
         </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -126,19 +126,19 @@ export default function WebsitesPage() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Add Website Source</DialogTitle>
+            <DialogTitle>Ajouter une source de site web</DialogTitle>
             <DialogDescription>
-              Enter the URL of the website you want to add as a data source.
+              Entrez l'URL du site web que vous souhaitez ajouter comme source de données.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
-                Name
+                Nom
               </Label>
               <Input
                 id="name"
-                placeholder="e.g. My Company Blog"
+                placeholder="Ex: Blog de mon entreprise"
                 className="col-span-3"
               />
             </div>
@@ -154,7 +154,7 @@ export default function WebsitesPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Save source</Button>
+            <Button type="submit">Enregistrer la source</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

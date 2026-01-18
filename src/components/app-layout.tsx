@@ -16,21 +16,25 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus, Settings } from "lucide-react";
 import { ConversationHistory } from "@/components/chat/conversation-history";
+import { Brand } from "@/components/brand";
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <SidebarProvider>
       <Sidebar>
-        <SidebarHeader>
-          <Button className="w-full">
+        <SidebarHeader className="border-b p-4">
+          <Brand />
+        </SidebarHeader>
+        <div className="p-2">
+           <Button className="w-full">
             <Plus className="mr-2 h-4 w-4" />
             Nouvelle conversation
           </Button>
-        </SidebarHeader>
+        </div>
         <SidebarContent>
           <ConversationHistory />
         </SidebarContent>
-        <SidebarFooter>
+        <SidebarFooter className="border-t">
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild variant="ghost">

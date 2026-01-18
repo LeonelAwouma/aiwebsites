@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Sparkles } from "lucide-react";
 
 export function AiIcon({
   className,
@@ -16,7 +17,7 @@ export function AiIcon({
         className
       )}
     >
-      AI
+      <Sparkles className="h-1/2 w-1/2" />
     </div>
   );
 }
