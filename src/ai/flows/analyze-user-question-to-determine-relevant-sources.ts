@@ -16,6 +16,12 @@ const AnalyzeUserQuestionInputSchema = z.object({
 });
 export type AnalyzeUserQuestionInput = z.infer<typeof AnalyzeUserQuestionInputSchema>;
 
+const PromptOutputSchema = z.object({
+  relevantSources: z
+    .array(z.string())
+    .describe('The list of relevant data sources (websites, databases) for the question.'),
+});
+
 const AnalyzeUserQuestionOutputSchema = z.object({
   relevantSources: z
     .array(z.string())
@@ -28,35 +34,17 @@ export async function analyzeUserQuestion(input: AnalyzeUserQuestionInput): Prom
   return analyzeUserQuestionFlow(input);
 }
 
-const decideWhetherToIncludeCodeSnippet = ai.defineTool({
-  name: 'decideWhetherToIncludeCodeSnippet',
-  description: 'Determines whether a code snippet is relevant to answering the user question.',
-  inputSchema: z.object({
-    question: z.string().describe('The user question.'),
-  }),
-  outputSchema: z.boolean().describe('Whether a code snippet is needed (true) or not (false).'),
-},
-async (input) => {
-  // Basic logic, refine as needed
-  const lowerCaseQuestion = input.question.toLowerCase();
-    return lowerCaseQuestion.includes('code') || lowerCaseQuestion.includes('script') || lowerCaseQuestion.includes('sql');
-});
-
 
 const analyzeUserQuestionPrompt = ai.definePrompt({
   name: 'analyzeUserQuestionPrompt',
   input: {schema: AnalyzeUserQuestionInputSchema},
-  output: {schema: AnalyzeUserQuestionOutputSchema},
-  tools: [decideWhetherToIncludeCodeSnippet],
+  output: {schema: PromptOutputSchema},
   prompt: `You are an AI assistant that analyzes user questions to determine the relevant data sources for answering the question.
 
   Analyze the following question and determine which data sources would be most helpful in providing an accurate and contextual answer.
   Return a list of relevant data sources (websites, databases).
 
   Question: {{{question}}}
-  
-  Consider if the user question could benefit from the inclusion of a code snippet.
-  Use the decideWhetherToIncludeCodeSnippet tool.
   `,
 });
 
@@ -69,17 +57,12 @@ const analyzeUserQuestionFlow = ai.defineFlow(
   async input => {
     const {output} = await analyzeUserQuestionPrompt(input);
 
-    if (!output) {
-      throw new Error('No output from analyzeUserQuestionPrompt');
-    }
-    
-    const requiresCodeSnippetResult = await decideWhetherToIncludeCodeSnippet({
-      question: input.question,
-    });
+    const lowerCaseQuestion = input.question.toLowerCase();
+    const requiresCodeSnippet = lowerCaseQuestion.includes('code') || lowerCaseQuestion.includes('script') || lowerCaseQuestion.includes('sql');
 
     return {
-      ...output,
-      requiresCodeSnippet: requiresCodeSnippetResult,
+      relevantSources: output?.relevantSources || [],
+      requiresCodeSnippet: requiresCodeSnippet,
     };
   }
 );

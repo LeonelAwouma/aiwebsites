@@ -38,7 +38,7 @@ const prompt = ai.definePrompt({
   Data Sources: {{{dataSources}}}
   Retrieved Information: {{{retrievedInformation}}}
 
-  Answer: {
+  Based on the provided information, generate a natural language answer to the question.
 `,
 });
 
@@ -50,6 +50,9 @@ const generateNaturalLanguageResponseFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output) {
+      return { answer: "I'm sorry, I could not generate a response." };
+    }
+    return output;
   }
 );
