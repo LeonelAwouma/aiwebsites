@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -30,6 +30,7 @@ import { MoreHorizontal, PlusCircle, Globe } from "lucide-react";
 import { initialWebsiteSources } from "@/lib/data";
 import type { WebsiteSource } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function WebsiteSourceCard({
   source,
@@ -90,11 +91,44 @@ function WebsiteSourceCard({
   );
 }
 
+function WebsiteSourceCardSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary">
+              <Globe className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </div>
+          <div className="h-8 w-8 flex-shrink-0" />
+        </div>
+      </CardHeader>
+      <CardFooter className="flex justify-between items-center bg-secondary/50 px-6 py-3 rounded-b-lg">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-2 w-2 rounded-full" />
+          <Skeleton className="h-4 w-12" />
+        </div>
+        <Skeleton className="h-6 w-11 rounded-full" />
+      </CardFooter>
+    </Card>
+  );
+}
+
 export default function WebsitesPage() {
   const [sources, setSources] = useState<WebsiteSource[]>(
     initialWebsiteSources
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const handleToggle = (id: string, isActive: boolean) => {
     setSources(
@@ -114,13 +148,17 @@ export default function WebsitesPage() {
         </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sources.map((source) => (
-          <WebsiteSourceCard
-            key={source.id}
-            source={source}
-            onToggle={handleToggle}
-          />
-        ))}
+        {hasMounted
+          ? sources.map((source) => (
+              <WebsiteSourceCard
+                key={source.id}
+                source={source}
+                onToggle={handleToggle}
+              />
+            ))
+          : initialWebsiteSources.map((source) => (
+              <WebsiteSourceCardSkeleton key={source.id} />
+            ))}
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

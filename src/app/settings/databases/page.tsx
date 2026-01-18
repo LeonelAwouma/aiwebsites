@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -41,6 +41,7 @@ import {
 import { MoreHorizontal, PlusCircle, CheckCircle } from "lucide-react";
 import { initialDatabaseConnections } from "@/lib/data";
 import type { DatabaseConnection, DatabaseType } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const dbIcons: Record<DatabaseType, React.ElementType> = {
   postgresql: PostgresqlIcon,
@@ -92,9 +93,36 @@ function DatabaseCard({ db }: { db: DatabaseConnection }) {
   );
 }
 
+function DatabaseCardSkeleton() {
+  return (
+    <Card className="flex flex-col">
+      <CardHeader className="flex flex-row items-start gap-4 space-y-0">
+        <Skeleton className="h-12 w-12 rounded-lg flex-shrink-0" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+        <div className="h-8 w-8 flex-shrink-0" />
+      </CardHeader>
+      <CardContent className="flex-grow">
+        <Skeleton className="h-16 w-full" />
+      </CardContent>
+      <CardFooter className="bg-secondary/50 px-6 py-3 rounded-b-lg">
+        <Skeleton className="h-9 w-full" />
+      </CardFooter>
+    </Card>
+  );
+}
+
+
 export default function DatabasesPage() {
   const [databases, setDatabases] = useState(initialDatabaseConnections);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   return (
     <>
@@ -108,9 +136,11 @@ export default function DatabasesPage() {
         </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {databases.map((db) => (
-          <DatabaseCard key={db.id} db={db} />
-        ))}
+        {hasMounted
+          ? databases.map((db) => <DatabaseCard key={db.id} db={db} />)
+          : initialDatabaseConnections.map((db) => (
+              <DatabaseCardSkeleton key={db.id} />
+            ))}
       </div>
       
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
