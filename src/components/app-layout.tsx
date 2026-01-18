@@ -54,37 +54,40 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         <SidebarContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <Link href="/" legacyBehavior passHref>
-                <SidebarMenuButton
-                  tooltip="Chat"
-                  isActive={isActive("/")}
-                >
+              <SidebarMenuButton
+                asChild
+                tooltip="Chat"
+                isActive={isActive("/")}
+              >
+                <Link href="/">
                   <BotMessageSquare />
                   <span>Chat</span>
-                </SidebarMenuButton>
-              </Link>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <Link href="/settings/websites" legacyBehavior passHref>
-                <SidebarMenuButton
-                  tooltip="Website Sources"
-                  isActive={isActive("/settings/websites")}
-                >
+              <SidebarMenuButton
+                asChild
+                tooltip="Website Sources"
+                isActive={isActive("/settings/websites")}
+              >
+                <Link href="/settings/websites">
                   <Globe />
                   <span>Website Sources</span>
-                </SidebarMenuButton>
-              </Link>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <Link href="/settings/databases" legacyBehavior passHref>
-                <SidebarMenuButton
-                  tooltip="Databases"
-                  isActive={isActive("/settings/databases")}
-                >
+              <SidebarMenuButton
+                asChild
+                tooltip="Databases"
+                isActive={isActive("/settings/databases")}
+              >
+                <Link href="/settings/databases">
                   <Database />
                   <span>Databases</span>
-                </SidebarMenuButton>
-              </Link>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarContent>
