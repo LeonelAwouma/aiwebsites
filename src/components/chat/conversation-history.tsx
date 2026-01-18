@@ -17,6 +17,7 @@ export function ConversationHistory() {
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
+    // This runs only on the client, after the component has mounted.
     setConversations([
       { id: 1, date: new Date(), active: true },
       { id: 2, date: new Date(Date.now() - 1 * 60 * 1000) },
@@ -24,15 +25,17 @@ export function ConversationHistory() {
       { id: 4, date: new Date(Date.now() - 24 * 60 * 60 * 1000) },
     ]);
     setHasMounted(true);
-  }, []);
+  }, []); // Empty dependency array ensures this runs only once.
 
+  // On the server, and on the client before `useEffect` runs, this will be rendered.
+  // This placeholder is structurally identical to the final output.
   if (!hasMounted) {
     return (
       <div className="flex flex-col gap-1 p-2">
         {[...Array(4)].map((_, index) => (
           <Button
             key={index}
-            variant="ghost"
+            variant={index === 0 ? "secondary" : "ghost"}
             className="w-full justify-start h-auto py-2 px-3"
             disabled
           >
@@ -47,6 +50,7 @@ export function ConversationHistory() {
     );
   }
 
+  // This is rendered only on the client, after hydration is complete.
   return (
     <div className="flex flex-col gap-1 p-2">
       {conversations.map((convo) => (
