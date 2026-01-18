@@ -1,3 +1,10 @@
+import AppLayout from "@/components/app-layout";
+import { ChatInterface } from "@/components/chat/chat-interface";
+
 export default function Home() {
-  return <></>;
+  return (
+    <AppLayout>
+      <ChatInterface />
+    </AppLayout>
+  );
 }
