@@ -26,6 +26,9 @@ const formSchema = z.object({
   message: z.string().min(1, "Message cannot be empty."),
 });
 
+let idCounter = 0;
+const generateId = () => `chat-message-${Date.now()}-${idCounter++}`;
+
 export function ChatInterface() {
   const { toast } = useToast();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -56,7 +59,7 @@ export function ChatInterface() {
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     const userMessage: ChatMessage = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       role: "user",
       content: values.message,
     };
@@ -77,7 +80,7 @@ export function ChatInterface() {
       }
 
       const aiMessage: ChatMessage = {
-        id: crypto.randomUUID(),
+        id: generateId(),
         role: "assistant",
         content: res.aiResponse,
         sources: res.sources,
